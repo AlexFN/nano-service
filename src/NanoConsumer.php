@@ -13,7 +13,7 @@ class NanoConsumer extends NanoServiceClass
 
     public function events(string $event): NanoConsumer
     {
-        $this->queue(self::MICROSERVICE);
+        $this->queue($this->getEnv(self::MICROSERVICE));
         $this->exchange($event);
 
         return $this;
@@ -28,7 +28,7 @@ class NanoConsumer extends NanoServiceClass
 
         $this->channel->queue_bind($this->queue, $this->exchange);
 
-        $this->channel->basic_consume($this->queue, self::MICROSERVICE, false, false, false, false, [$this, 'consumeCallback']);
+        $this->channel->basic_consume($this->queue, $this->getEnv(self::MICROSERVICE), false, false, false, false, [$this, 'consumeCallback']);
         register_shutdown_function([$this, 'shutdown'], $this->channel, $this->connection);
         $this->channel->consume();
     }
