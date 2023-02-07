@@ -104,10 +104,14 @@ $message = (new NanoServiceMessage())
 $message->getPayload();
 $message->getPayloadAttribute('key');
 $message->getPayloadAttribute('key', 'default_value');
+$message->addPayload([]);
+$message->getPayloadAttribute('attribute', []);
 
 $message->getMeta();
 $message->getMetaAttribute('key');
 $message->getMetaAttribute('key', 'default_value');
+$message->addMeta([]);
+$message->getMetaAttribute('attribute', []);
 
 $message->getStatusCode(); // Default 'unknown'
 $message->setStatusCode('success');
