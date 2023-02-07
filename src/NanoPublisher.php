@@ -6,11 +6,6 @@ use Exception;
 
 class NanoPublisher extends NanoServiceClass
 {
-    /**
-     * TODO: проверять что exchange имеет хотябы одного подписчика!
-     *
-     */
-
     private $message;
 
 
@@ -26,17 +21,13 @@ class NanoPublisher extends NanoServiceClass
      */
     public function publish(string $event)
     {
-        //        $this->declare($event);
-        //        $this->channel->queue_bind($this->queue, $this->exchange);
+        $this->message->setEvent($event);
 
         $this->exchange($event);
-
         $this->channel->basic_publish($this->message, $this->exchange);
 
         $this->channel->close();
         $this->connection->close();
-
-        //TODO: logger
     }
 
 }

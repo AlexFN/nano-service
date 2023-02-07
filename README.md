@@ -88,26 +88,31 @@ $consumer
 
 ```php
 $message = (new NanoServiceMessage())
-    ->addData([
-        'key' => 'Value',
-    ]);
-```
-
-```php
-$message = (new NanoServiceMessage())
     ->addPayload([
         'key' => 'Value',
     ]);
 ```
 
 ```php
-$message->getData('key');
-$message->getDataAttribute('key');
-$message->getDataAttribute('key', 'default_value');
+$message = (new NanoServiceMessage())
+    ->addMeta([
+        'key' => 'Value',
+    ]);
+```
 
-$message->getPayload('key');
+```php
+$message->getPayload();
 $message->getPayloadAttribute('key');
 $message->getPayloadAttribute('key', 'default_value');
+
+$message->getMeta();
+$message->getMetaAttribute('key');
+$message->getMetaAttribute('key', 'default_value');
+
+$message->getStatusCode(); // Default 'unknown'
+$message->setStatusCode('success');
+$message->getStatusData(); // Default []
+$message->setStatusData([]);
 ```
 
 ### Replace attributes
@@ -140,6 +145,23 @@ $message = (new NanoServiceMessage())
     );
 
 // Result: {"key1":"New value 1","key2":"Value 2","key3":"New value 3"}
+```
+
+```php
+$message = (new NanoServiceMessage())
+    ->setStatusData([
+        'key1' => 'Value 1',
+        'key2' => 'Value 2',
+    ])
+    ->setStatusData(
+        [
+            'key1' => 'New value 1',
+            'key3' => 'New value 3',
+        ],
+        true
+    );
+
+// Result: {"key1":"New value 1","key3":"New value 3"}
 ```
 
 ## Testing
