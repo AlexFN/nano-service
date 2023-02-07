@@ -78,7 +78,7 @@ $message = (new NanoServiceMessage())
 ```php
 $consumer = new NanoConsumer();
 $consumer
-    ->events('event-name')
+    ->events('event-one', 'event-two')
     ->consume(function (NanoServiceMessage $message) {
         $payload = $message->getPayload();// array
     });
