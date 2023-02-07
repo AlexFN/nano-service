@@ -29,9 +29,9 @@ class NanoServiceMessage extends AMQPMessage
             'meta' => [],
             'status' => [
                 'code' => 'unknown',
-                'data' => []
+                'data' => [],
             ],
-            'payload' => []
+            'payload' => [],
         ];
     }
 
@@ -41,10 +41,10 @@ class NanoServiceMessage extends AMQPMessage
     {
         $bodyData = json_decode($this->getBody(), true);
         $result = array_replace_recursive($bodyData, [
-            $key => $data
+            $key => $data,
         ]);
 
-        if (!$replace) {
+        if (! $replace) {
             $result = array_replace_recursive($result, $bodyData);
         }
 
@@ -67,6 +67,7 @@ class NanoServiceMessage extends AMQPMessage
     protected function getDataAttribute($attribute, $default = []): array
     {
         $data = $this->getData();
+
         return $data[$attribute] ?? $default;
     }
 
@@ -86,7 +87,7 @@ class NanoServiceMessage extends AMQPMessage
     public function addPayloadAttribute(string $attribute, array $data, $replace = false): NanoServiceMessage
     {
         $this->addData('payload', [
-            $attribute => $data
+            $attribute => $data,
         ], $replace);
 
         return $this;
@@ -100,6 +101,7 @@ class NanoServiceMessage extends AMQPMessage
     public function getPayloadAttribute($attribute, $default = null)
     {
         $payload = $this->getPayload();
+
         return $payload[$attribute] ?? $default;
     }
 
@@ -108,6 +110,7 @@ class NanoServiceMessage extends AMQPMessage
     public function getStatusCode(): string
     {
         $statusData = $this->getDataAttribute('status');
+
         return $statusData['code'] ?? '';
     }
 
@@ -121,6 +124,7 @@ class NanoServiceMessage extends AMQPMessage
     public function getStatusData(): array
     {
         $statusData = $this->getDataAttribute('status');
+
         return $statusData['data'] ?? [];
     }
 
@@ -143,7 +147,7 @@ class NanoServiceMessage extends AMQPMessage
     public function addMetaAttribute(string $attribute, array $data, $replace = false): NanoServiceMessage
     {
         $this->addData('meta', [
-            $attribute => $data
+            $attribute => $data,
         ], $replace);
 
         return $this;
@@ -157,6 +161,7 @@ class NanoServiceMessage extends AMQPMessage
     public function getMetaAttribute($attribute, $default = null)
     {
         $meta = $this->getMeta();
+
         return $meta[$attribute] ?? $default;
     }
 

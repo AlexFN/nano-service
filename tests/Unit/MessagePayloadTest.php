@@ -124,4 +124,3 @@ final class MessagePayloadTest extends TestCase
         ], $this->message->getPayload());
     }
 }
-

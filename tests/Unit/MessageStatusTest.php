@@ -34,11 +34,11 @@ final class MessageStatusTest extends TestCase
     public function testSetStatusData(): void
     {
         $this->message->setStatusData([
-            'key1' => 'Value 1'
+            'key1' => 'Value 1',
         ]);
 
         $this->assertEquals([
-            'key1' => 'Value 1'
+            'key1' => 'Value 1',
         ], $this->message->getStatusData());
     }
 
@@ -46,14 +46,13 @@ final class MessageStatusTest extends TestCase
     {
         $this->message->setStatusData([
             'key1' => 'Value 1',
-            'key2' => 'Value 2'
+            'key2' => 'Value 2',
         ])->setStatusData([
             'key1' => 'New value 1',
         ]);
 
         $this->assertEquals([
-            'key1' => 'New value 1'
+            'key1' => 'New value 1',
         ], $this->message->getStatusData());
     }
 }
-

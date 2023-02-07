@@ -8,7 +8,6 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 class NanoConsumer extends NanoServiceClass
 {
-
     private $function;
 
     public function events(string $event): NanoConsumer
@@ -51,5 +50,4 @@ class NanoConsumer extends NanoServiceClass
         $this->channel->close();
         $this->connection->close();
     }
-
 }

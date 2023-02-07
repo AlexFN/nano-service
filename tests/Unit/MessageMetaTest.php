@@ -124,4 +124,3 @@ final class MessageMetaTest extends TestCase
         ], $this->message->getMeta());
     }
 }
-

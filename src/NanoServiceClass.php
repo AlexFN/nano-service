@@ -9,12 +9,16 @@ use PhpAmqpLib\Exchange\AMQPExchangeType;
 
 class NanoServiceClass
 {
-
     const PROJECT = 'AMQP_PROJECT';
+
     const HOST = 'AMQP_HOST';
+
     const PORT = 'AMQP_PORT';
+
     const USER = 'AMQP_USER';
+
     const PASS = 'AMQP_PASS';
+
     const VHOST = 'AMQP_VHOST';
 
     const MICROSERVICE = 'AMQP_MICROSERVICE';

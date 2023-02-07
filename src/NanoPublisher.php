@@ -8,7 +8,6 @@ class NanoPublisher extends NanoServiceClass
 {
     private $message;
 
-
     public function setMessage(NanoServiceMessage $message): NanoPublisher
     {
         $this->message = $message;
@@ -29,5 +28,4 @@ class NanoPublisher extends NanoServiceClass
         $this->channel->close();
         $this->connection->close();
     }
-
 }
