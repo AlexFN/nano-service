@@ -33,8 +33,8 @@ class NanoServiceMessage extends AMQPMessage
             ],
             'payload' => [],
             'system' => [
-                'is_debug' => false
-            ]
+                'is_debug' => false,
+            ],
         ];
     }
 
