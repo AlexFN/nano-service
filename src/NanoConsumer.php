@@ -8,7 +8,9 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 class NanoConsumer extends NanoServiceClass
 {
-    private $function;
+    private $callback;
+
+    private $debugCallback;
 
     public function events(string ...$events): NanoConsumer
     {
@@ -25,9 +27,10 @@ class NanoConsumer extends NanoServiceClass
     /**
      * @throws ErrorException
      */
-    public function consume(callable $function)
+    public function consume(callable $callback, ?callable $debugCallback = null)
     {
-        $this->function = $function;
+        $this->callback = $callback;
+        $this->debugCallback = $debugCallback;
 
         $this->channel->basic_consume($this->queue, $this->getEnv(self::MICROSERVICE), false, false, false, false, [$this, 'consumeCallback']);
         register_shutdown_function([$this, 'shutdown'], $this->channel, $this->connection);
@@ -40,7 +43,9 @@ class NanoConsumer extends NanoServiceClass
         $newMessage->setDeliveryTag($message->getDeliveryTag());
         $newMessage->setChannel($message->getChannel());
 
-        call_user_func($this->function, $newMessage);
+        $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
+
+        call_user_func($callback, $newMessage);
         $newMessage->ack();
     }
 

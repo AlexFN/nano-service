@@ -120,6 +120,7 @@ $message->setStatusData([]);
 ```
 
 ### Replace attributes
+
 ```php
 $message = (new NanoServiceMessage())
     ->addPayload([
@@ -166,6 +167,24 @@ $message = (new NanoServiceMessage())
     );
 
 // Result: {"key1":"New value 1","key3":"New value 3"}
+```
+
+## Debug mode
+
+```
+$message->setDebug();
+
+(new NanoPublisher())
+    ->setMessage($message)
+    ->publish('event-name');
+```
+
+```
+$consumer
+    ->events('event-name')
+    ->consume($callback, function (NanoServiceMessage $message) {
+        // debugCallback (Optional)
+    });
 ```
 
 ## Testing

@@ -32,6 +32,9 @@ class NanoServiceMessage extends AMQPMessage
                 'data' => [],
             ],
             'payload' => [],
+            'system' => [
+                'is_debug' => false
+            ]
         ];
     }
 
@@ -170,5 +173,21 @@ class NanoServiceMessage extends AMQPMessage
     public function setEvent(string $event)
     {
         $this->set('type', $event);
+    }
+
+    // Debug mode
+
+    public function setDebug(bool $debug = true): NanoServiceMessage
+    {
+        $this->setDataAttribute('system', 'is_debug', $debug);
+
+        return $this;
+    }
+
+    public function getDebug(): bool
+    {
+        $system = $this->getDataAttribute('system');
+
+        return $system['is_debug'] ?? false;
     }
 }
