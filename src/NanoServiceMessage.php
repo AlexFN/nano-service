@@ -4,8 +4,9 @@ namespace AlexFN\NanoService;
 
 use PhpAmqpLib\Message\AMQPMessage;
 use Ramsey\Uuid\Uuid;
+use \AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
 
-class NanoServiceMessage extends AMQPMessage
+class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContract
 {
     public function __construct($data = [], $properties = [])
     {
@@ -80,14 +81,14 @@ class NanoServiceMessage extends AMQPMessage
 
     // Payload
 
-    public function addPayload(array $payload, $replace = false): NanoServiceMessage
+    public function addPayload(array $payload, $replace = false): NanoServiceMessageContract
     {
         $this->addData('payload', $payload, $replace);
 
         return $this;
     }
 
-    public function addPayloadAttribute(string $attribute, array $data, $replace = false): NanoServiceMessage
+    public function addPayloadAttribute(string $attribute, array $data, $replace = false): NanoServiceMessageContract
     {
         $this->addData('payload', [
             $attribute => $data,
@@ -117,7 +118,7 @@ class NanoServiceMessage extends AMQPMessage
         return $statusData['code'] ?? '';
     }
 
-    public function setStatusCode(string $code): NanoServiceMessage
+    public function setStatusCode(string $code): NanoServiceMessageContract
     {
         $this->setDataAttribute('status', 'code', $code);
 
@@ -131,7 +132,7 @@ class NanoServiceMessage extends AMQPMessage
         return $statusData['data'] ?? [];
     }
 
-    public function setStatusData(array $data): NanoServiceMessage
+    public function setStatusData(array $data): NanoServiceMessageContract
     {
         $this->setDataAttribute('status', 'data', $data);
 
@@ -140,14 +141,14 @@ class NanoServiceMessage extends AMQPMessage
 
     // Meta
 
-    public function addMeta(array $payload, $replace = false): NanoServiceMessage
+    public function addMeta(array $payload, $replace = false): NanoServiceMessageContract
     {
         $this->addData('meta', $payload, $replace);
 
         return $this;
     }
 
-    public function addMetaAttribute(string $attribute, array $data, $replace = false): NanoServiceMessage
+    public function addMetaAttribute(string $attribute, array $data, $replace = false): NanoServiceMessageContract
     {
         $this->addData('meta', [
             $attribute => $data,
@@ -170,14 +171,16 @@ class NanoServiceMessage extends AMQPMessage
 
     // Event property
 
-    public function setEvent(string $event)
+    public function setEvent(string $event): NanoServiceMessageContract
     {
         $this->set('type', $event);
+
+        return $this;
     }
 
     // Debug mode
 
-    public function setDebug(bool $debug = true): NanoServiceMessage
+    public function setDebug(bool $debug = true): NanoServiceMessageContract
     {
         $this->setDataAttribute('system', 'is_debug', $debug);
 

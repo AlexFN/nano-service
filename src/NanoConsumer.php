@@ -5,14 +5,15 @@ namespace AlexFN\NanoService;
 use ErrorException;
 use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
+use \AlexFN\NanoService\Contracts\NanoConsumer as NanoConsumerContract;
 
-class NanoConsumer extends NanoServiceClass
+class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 {
     private $callback;
 
     private $debugCallback;
 
-    public function events(string ...$events): NanoConsumer
+    public function events(string ...$events): NanoConsumerContract
     {
         $this->queue($this->getEnv(self::MICROSERVICE));
 
@@ -27,7 +28,7 @@ class NanoConsumer extends NanoServiceClass
     /**
      * @throws ErrorException
      */
-    public function consume(callable $callback, ?callable $debugCallback = null)
+    public function consume(callable $callback, ?callable $debugCallback = null): void
     {
         $this->callback = $callback;
         $this->debugCallback = $debugCallback;

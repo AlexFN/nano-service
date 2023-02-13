@@ -3,12 +3,14 @@
 namespace AlexFN\NanoService;
 
 use Exception;
+use \AlexFN\NanoService\Contracts\NanoPublisher as NanoPublisherContract;
+use \AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
 
-class NanoPublisher extends NanoServiceClass
+class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
 {
     private $message;
 
-    public function setMessage(NanoServiceMessage $message): NanoPublisher
+    public function setMessage(NanoServiceMessageContract $message): NanoPublisherContract
     {
         $this->message = $message;
 
@@ -18,7 +20,7 @@ class NanoPublisher extends NanoServiceClass
     /**
      * @throws Exception
      */
-    public function publish(string $event)
+    public function publish(string $event): void
     {
         $this->message->setEvent($event);
 
