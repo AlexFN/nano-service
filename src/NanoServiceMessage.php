@@ -2,9 +2,9 @@
 
 namespace AlexFN\NanoService;
 
+use AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
 use PhpAmqpLib\Message\AMQPMessage;
 use Ramsey\Uuid\Uuid;
-use \AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
 
 class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContract
 {

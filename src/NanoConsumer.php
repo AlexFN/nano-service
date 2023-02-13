@@ -2,10 +2,10 @@
 
 namespace AlexFN\NanoService;
 
+use AlexFN\NanoService\Contracts\NanoConsumer as NanoConsumerContract;
 use ErrorException;
 use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
-use \AlexFN\NanoService\Contracts\NanoConsumer as NanoConsumerContract;
 
 class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 {

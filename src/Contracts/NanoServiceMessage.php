@@ -17,16 +17,16 @@ interface NanoServiceMessage
     public function getPayloadAttribute($attribute, $default = null);
 
     /**
-     * @param array $payload
-     * @param bool $replace
+     * @param  array  $payload
+     * @param  bool  $replace
      * @return NanoServiceMessage
      */
     public function addPayload(array $payload, bool $replace = false): self;
 
     /**
-     * @param string $attribute
-     * @param array $data
-     * @param bool $replace
+     * @param  string  $attribute
+     * @param  array  $data
+     * @param  bool  $replace
      * @return NanoServiceMessage
      */
     public function addPayloadAttribute(string $attribute, array $data, bool $replace = false): self;
@@ -37,7 +37,7 @@ interface NanoServiceMessage
     public function getStatusCode(): string;
 
     /**
-     * @param string $code
+     * @param  string  $code
      * @return NanoServiceMessage
      */
     public function setStatusCode(string $code): self;
@@ -48,7 +48,7 @@ interface NanoServiceMessage
     public function getStatusData(): array;
 
     /**
-     * @param array $data
+     * @param  array  $data
      * @return NanoServiceMessage
      */
     public function setStatusData(array $data): self;
@@ -59,23 +59,23 @@ interface NanoServiceMessage
     public function getMeta(): array;
 
     /**
-     * @param string $attribute
+     * @param  string  $attribute
      * @param $default
      * @return mixed
      */
     public function getMetaAttribute(string $attribute, $default = null);
 
     /**
-     * @param array $payload
-     * @param bool $replace
+     * @param  array  $payload
+     * @param  bool  $replace
      * @return NanoServiceMessage
      */
     public function addMeta(array $payload, bool $replace = false): self;
 
     /**
-     * @param string $attribute
-     * @param array $data
-     * @param bool $replace
+     * @param  string  $attribute
+     * @param  array  $data
+     * @param  bool  $replace
      * @return NanoServiceMessage
      */
     public function addMetaAttribute(string $attribute, array $data, bool $replace = false): self;
@@ -86,13 +86,13 @@ interface NanoServiceMessage
     public function getDebug(): bool;
 
     /**
-     * @param bool $debug
+     * @param  bool  $debug
      * @return NanoServiceMessage
      */
     public function setDebug(bool $debug = true): self;
 
     /**
-     * @param string $event
+     * @param  string  $event
      * @return NanoServiceMessage
      */
     public function setEvent(string $event): self;

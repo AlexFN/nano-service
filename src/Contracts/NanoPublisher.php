@@ -7,7 +7,7 @@ interface NanoPublisher
     /**
      * Set message
      *
-     * @param NanoServiceMessage $message
+     * @param  NanoServiceMessage  $message
      * @return NanoPublisher
      */
     public function setMessage(NanoServiceMessage $message): self;

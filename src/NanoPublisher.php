@@ -2,9 +2,9 @@
 
 namespace AlexFN\NanoService;
 
+use AlexFN\NanoService\Contracts\NanoPublisher as NanoPublisherContract;
+use AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
 use Exception;
-use \AlexFN\NanoService\Contracts\NanoPublisher as NanoPublisherContract;
-use \AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
 
 class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
 {
