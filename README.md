@@ -128,11 +128,13 @@ $message->setStatusData([]);
 ## Encrypting data using private/public keys 
 
 ```php
+// Encrypting a message with a private key
 $message = (new NanoServiceMessage())
     ->setEncryptedAttribute('attribute', 'My secret data');
 ```
 
 ```php
+// Decrypting with the public key
 $message->getEncryptedAttribute('attribute'); // My secret data
 ```
 
