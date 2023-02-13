@@ -233,7 +233,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
 
     public function setEncryptedAttribute(string $attribute, string $value): NanoServiceMessageContract
     {
-        if (true) {
+        if (! $this->private_key) {
             $this->private_key = PrivateKey::fromString($this->getEnv(self::PRIVATE_KEY));
         }
 
