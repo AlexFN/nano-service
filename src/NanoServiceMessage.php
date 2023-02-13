@@ -12,7 +12,6 @@ use Spatie\Crypto\Rsa\PublicKey;
 
 class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContract
 {
-
     use Environment;
 
     const PRIVATE_KEY = 'AMQP_PRIVATE_KEY';
@@ -51,7 +50,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
             'system' => [
                 'is_debug' => false,
             ],
-            'encrypted' => []
+            'encrypted' => [],
         ];
     }
 
@@ -213,14 +212,15 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     // Encrypted attributes
 
     /**
-     * @param string $attribute
-     * @param null $default
+     * @param  string  $attribute
+     * @param  null  $default
      * @return string
+     *
      * @throws CouldNotDecryptData
      */
     public function getEncryptedAttribute(string $attribute, $default = null): string
     {
-        if (!$this->public_key) {
+        if (! $this->public_key) {
             $this->public_key = PublicKey::fromString($this->getEnv(self::PUBLIC_KEY));
         }
 
