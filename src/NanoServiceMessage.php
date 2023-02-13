@@ -3,11 +3,26 @@
 namespace AlexFN\NanoService;
 
 use AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
+use AlexFN\NanoService\Traits\Environment;
 use PhpAmqpLib\Message\AMQPMessage;
 use Ramsey\Uuid\Uuid;
+use Spatie\Crypto\Rsa\Exceptions\CouldNotDecryptData;
+use Spatie\Crypto\Rsa\PrivateKey;
+use Spatie\Crypto\Rsa\PublicKey;
 
 class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContract
 {
+
+    use Environment;
+
+    const PRIVATE_KEY = 'AMQP_PRIVATE_KEY';
+
+    const PUBLIC_KEY = 'AMQP_PUBLIC_KEY';
+
+    private $private_key;
+
+    private $public_key;
+
     public function __construct($data = [], $properties = [])
     {
         $body = is_array($data) ? json_encode(array_merge($this->dataStructure(), $data)) : $data;
@@ -36,6 +51,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
             'system' => [
                 'is_debug' => false,
             ],
+            'encrypted' => []
         ];
     }
 
@@ -68,7 +84,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         return json_decode($this->getBody(), true);
     }
 
-    protected function getDataAttribute($attribute, $default = []): array
+    protected function getDataAttribute($attribute, $default = [])
     {
         $data = $this->getData();
 
@@ -192,5 +208,39 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         $system = $this->getDataAttribute('system');
 
         return $system['is_debug'] ?? false;
+    }
+
+    // Encrypted attributes
+
+    /**
+     * @param string $attribute
+     * @param null $default
+     * @return string
+     * @throws CouldNotDecryptData
+     */
+    public function getEncryptedAttribute(string $attribute, $default = null): string
+    {
+        if (!$this->public_key) {
+            $this->public_key = PublicKey::fromString($this->getEnv(self::PUBLIC_KEY));
+        }
+
+        $encryptedData = $this->getDataAttribute('encrypted', []);
+
+        $encryptedAttribute = $encryptedData[$attribute] ?? null;
+
+        return $encryptedAttribute ? $this->public_key->decrypt(base64_decode($encryptedAttribute)) : $default;
+    }
+
+    public function setEncryptedAttribute(string $attribute, string $value): NanoServiceMessageContract
+    {
+        if (true) {
+            $this->private_key = PrivateKey::fromString($this->getEnv(self::PRIVATE_KEY));
+        }
+
+        $encryptedAttribute = base64_encode($this->private_key->encrypt($value));
+
+        $this->setDataAttribute('encrypted', $attribute, $encryptedAttribute);
+
+        return $this;
     }
 }

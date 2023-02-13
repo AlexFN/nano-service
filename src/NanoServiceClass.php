@@ -2,13 +2,15 @@
 
 namespace AlexFN\NanoService;
 
+use AlexFN\NanoService\Traits\Environment;
 use Exception;
-use PhpAmqpLib\Channel\AbstractChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 
 class NanoServiceClass
 {
+    use Environment;
+
     const PROJECT = 'AMQP_PROJECT';
 
     const HOST = 'AMQP_HOST';
@@ -92,11 +94,5 @@ class NanoServiceClass
     public function getNamespace(string $path): string
     {
         return "{$this->getProject()}.$path";
-    }
-
-    protected function getEnv(string $param): string
-    {
-        //return $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? getenv('APP_ENV');
-        return getenv($param, true) ?: getenv($param) ?: $_ENV[$param];
     }
 }

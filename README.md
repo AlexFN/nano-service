@@ -37,6 +37,12 @@ AMQP_VHOST="/"
 
 # Required for the consumer
 AMQP_MICROSERVICE="microservice-name"
+
+# For publisher encryption 
+AMQP_PRIVATE_KEY="private-key"
+
+# For message getters
+AMQP_PUBLIC_KEY="public-key"
 ```
 
 2. Create message
@@ -117,6 +123,17 @@ $message->getStatusCode(); // Default 'unknown'
 $message->setStatusCode('success');
 $message->getStatusData(); // Default []
 $message->setStatusData([]);
+```
+
+## Encrypting data using private/public keys 
+
+```php
+$message = (new NanoServiceMessage())
+    ->setEncryptedAttribute('attribute', 'My secret data');
+```
+
+```php
+$message->getEncryptedAttribute('attribute'); // My secret data
 ```
 
 ### Replace attributes

@@ -96,4 +96,18 @@ interface NanoServiceMessage
      * @return NanoServiceMessage
      */
     public function setEvent(string $event): self;
+
+    /**
+     * @param string $attribute
+     * @param null $default
+     * @return string
+     */
+    public function getEncryptedAttribute(string $attribute, $default = null): string;
+
+    /**
+     * @param string $attribute
+     * @param string $value
+     * @return NanoServiceMessage
+     */
+    public function setEncryptedAttribute(string $attribute, string $value): self;
 }
