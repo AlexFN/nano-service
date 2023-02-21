@@ -22,11 +22,13 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
 
     private $public_key;
 
-    public function __construct($data = [], $properties = [])
+    public function __construct($data = [], array $properties = [], array $config = [])
     {
         $body = is_array($data) ? json_encode(array_merge($this->dataStructure(), $data)) : $data;
 
         $properties = array_merge($this->defaultProperty(), $properties);
+
+        $this->config = $config;
 
         parent::__construct($body, $properties);
     }

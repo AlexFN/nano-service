@@ -40,15 +40,18 @@ class NanoServiceClass
     /**
      * @throws Exception
      */
-    public function __construct(string $host = null, string $port = null, string $user = null, string $pass = null, string $vhost = null)
+    public function __construct(array $config = [])
     {
+        $this->config = $config;
+
         $this->connection = new AMQPStreamConnection(
-            $host ?? $this->getEnv(self::HOST),
-            $port ?? $this->getEnv(self::PORT),
-            $user ?? $this->getEnv(self::USER),
-            $pass ?? $this->getEnv(self::PASS),
-            $vhost ?? $this->getEnv(self::VHOST)
+            $this->getEnv(self::HOST),
+            $this->getEnv(self::PORT),
+            $this->getEnv(self::USER),
+            $this->getEnv(self::PASS),
+            $this->getEnv(self::VHOST)
         );
+
         $this->channel = $this->connection->channel();
     }
 
