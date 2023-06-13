@@ -17,5 +17,5 @@ interface NanoPublisher
      *
      * @return mixed
      */
-    public function publish(string $event): void;
+    public function publish(string $event, ?string $sendTo): void;
 }

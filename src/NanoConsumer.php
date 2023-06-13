@@ -18,8 +18,8 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $this->queue($this->getEnv(self::MICROSERVICE));
 
         foreach ($events as $event) {
-            $this->exchange($event);
-            $this->channel->queue_bind($this->queue, $this->exchange);
+            $exchange = $this->getNamespace($event);
+            $this->channel->queue_bind($this->queue, $exchange);
         }
 
         return $this;

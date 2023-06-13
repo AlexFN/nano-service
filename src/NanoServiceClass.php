@@ -58,12 +58,15 @@ class NanoServiceClass
     protected function exchange(
         string $exchange,
         string $exchangeType = AMQPExchangeType::FANOUT,
+        $arguments = array(),
         bool $passive = false,
         bool $durable = true,
-        bool $auto_delete = false
+        bool $auto_delete = false,
+        bool $internal = false,
+        bool $nowait = false
     ): NanoServiceClass {
         $this->exchange = $this->getNamespace($exchange);
-        $this->channel->exchange_declare($this->exchange, $exchangeType, $passive, $durable, $auto_delete);
+        $this->channel->exchange_declare($this->exchange, $exchangeType, $passive, $durable, $auto_delete, $internal, $nowait, $arguments);
 
         return $this;
     }
