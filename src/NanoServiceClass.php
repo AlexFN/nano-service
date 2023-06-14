@@ -32,7 +32,7 @@ class NanoServiceClass
     protected $channel;
 
     //protected string $exchange = 'default';
-    protected $exchange = 'default';
+    protected $exchange = 'bus';
 
     //protected string $queue = 'default';
     protected $queue = 'default';
@@ -57,7 +57,7 @@ class NanoServiceClass
 
     protected function exchange(
         string $exchange,
-        string $exchangeType = AMQPExchangeType::FANOUT,
+        string $exchangeType = AMQPExchangeType::TOPIC,
         $arguments = array(),
         bool $passive = false,
         bool $durable = true,
