@@ -3,12 +3,16 @@
 namespace AlexFN\NanoService;
 
 use AlexFN\NanoService\Contracts\NanoConsumer as NanoConsumerContract;
+use AlexFN\NanoService\SystemHandlers\SystemPing;
 use ErrorException;
 use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 {
+    protected array $handlers = [
+        'system.ping.1' => SystemPing::class
+    ];
     private $callback;
 
     private $debugCallback;
@@ -20,6 +24,11 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 
         foreach ($events as $event) {
             $this->channel->queue_bind($this->queue, $exchange, $event);
+        }
+
+        // Bind system events
+        foreach (array_keys($this->handlers) as $systemEvent) {
+            $this->channel->queue_bind($this->queue, $exchange, $systemEvent);
         }
 
         return $this;
@@ -44,9 +53,18 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $newMessage->setDeliveryTag($message->getDeliveryTag());
         $newMessage->setChannel($message->getChannel());
 
-        $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
+        $key = $message->get('type');
+        if (array_key_exists($key, $this->handlers)) {
 
-        call_user_func($callback, $newMessage);
+            // System handler
+            (new $this->handlers[$key]())($newMessage);
+        } else {
+
+            // User handler
+            $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
+            call_user_func($callback, $newMessage);
+        }
+
         $newMessage->ack();
     }
 

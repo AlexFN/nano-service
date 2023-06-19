@@ -8,7 +8,7 @@ trait Environment
 
     protected $prefix = 'AMQP_';
 
-    protected function getEnv(string $param): string
+    protected function getEnv(string $param): ?string
     {
         //return $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? getenv('APP_ENV');
 
