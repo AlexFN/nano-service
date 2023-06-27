@@ -58,23 +58,38 @@ class NanoServiceClass
     protected function exchange(
         string $exchange,
         string $exchangeType = AMQPExchangeType::TOPIC,
-        $arguments = array(),
+        $arguments = array()
+    ): NanoServiceClass {
+        $this->exchange = $this->getNamespace($exchange);
+
+        return $this->createExchange($this->exchange, $exchangeType, $arguments);
+    }
+
+    protected function createExchange(
+        string $exchange,
+        string $exchangeType = AMQPExchangeType::TOPIC,
+               $arguments = array(),
         bool $passive = false,
         bool $durable = true,
         bool $auto_delete = false,
         bool $internal = false,
         bool $nowait = false
     ): NanoServiceClass {
-        $this->exchange = $this->getNamespace($exchange);
-        $this->channel->exchange_declare($this->exchange, $exchangeType, $passive, $durable, $auto_delete, $internal, $nowait, $arguments);
+        $this->channel->exchange_declare($exchange, $exchangeType, $passive, $durable, $auto_delete, $internal, $nowait, $arguments);
 
         return $this;
     }
 
-    protected function queue(string $queue, $passive = false, $durable = true, $exclusive = false, $auto_delete = false): NanoServiceClass
+    protected function queue(string $queue, $arguments = []): NanoServiceClass
     {
         $this->queue = $this->getNamespace($queue);
-        $this->channel->queue_declare($this->queue, $passive, $durable, $exclusive, $auto_delete);
+
+        return $this->createQueue($this->queue, $arguments);
+    }
+
+    protected function createQueue(string $queue, $arguments = [], $passive = false, $durable = true, $exclusive = false, $auto_delete = false, $nowait = false): NanoServiceClass
+    {
+        $this->channel->queue_declare($queue, $passive, $durable, $exclusive, $auto_delete, $nowait, $arguments);
 
         return $this;
     }

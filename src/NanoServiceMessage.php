@@ -211,6 +211,30 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         return $system['is_debug'] ?? false;
     }
 
+    // Get message attributes
+
+    /**
+     * @return int
+     */
+    public function getRetryCount(): int
+    {
+        $table = $this->get_properties()['application_headers'] ?? null;
+        return $table ? (int) $table->getNativeData()['x-death'][0]['count'] : 0;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->get('message_id');
+    }
+
+    public function getType(): string
+    {
+        return $this->getType();
+    }
+
     // Encrypted attributes
 
     /**
