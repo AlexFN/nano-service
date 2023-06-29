@@ -219,8 +219,14 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     public function getRetryCount(): int
     {
         $table = $this->get_properties()['application_headers'] ?? null;
-        return $table ? (int) $table->getNativeData()['x-death'][0]['count'] : 0;
+
+        if ($table && isset($table->getNativeData()['x-death'][0]['count'])) {
+            return (int) $table->getNativeData()['x-death'][0]['count'];
+        } else {
+            return 0;
+        }
     }
+
 
     /**
      * @return string
