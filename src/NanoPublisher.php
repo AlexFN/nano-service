@@ -11,6 +11,7 @@ use PhpAmqpLib\Wire\AMQPTable;
 
 class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
 {
+    const PUBLISHER_ENABLED = "AMQP_PUBLISHER_ENABLED";
     private NanoServiceMessageContract $message;
 
     private ?int $delay = null;
@@ -34,6 +35,8 @@ class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
      */
     public function publish(string $event): void
     {
+        if ((bool) $this->getEnv(self::PUBLISHER_ENABLED) !== true) return;
+
         $this->message->setEvent($event);
 
         if ($this->delay) {

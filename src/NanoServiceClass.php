@@ -23,7 +23,7 @@ class NanoServiceClass
 
     const VHOST = 'AMQP_VHOST';
 
-    const MICROSERVICE = 'AMQP_MICROSERVICE';
+    const CONSUMER_NAME = 'AMQP_CONSUMER_NAME';
 
     //protected AMQPStreamConnection $connection;
     protected $connection;

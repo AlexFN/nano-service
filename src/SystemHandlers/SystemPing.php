@@ -8,6 +8,8 @@ use Exception;
 
 class SystemPing
 {
+    const CONSUMER_HEARTBEAT_URL = "AMQP_CONSUMER_HEARTBEAT_URL";
+
     use Environment;
 
     /**
@@ -17,7 +19,7 @@ class SystemPing
      */
     public function __invoke(NanoServiceMessage $message)
     {
-        if ($url = $this->getEnv('MONITORING_HEARTBEAT')) {
+        if ($url = $this->getEnv(self::CONSUMER_HEARTBEAT_URL)) {
             $this->sendHeartbeatRequest($url);
         }
     }

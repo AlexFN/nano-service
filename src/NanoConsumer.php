@@ -47,11 +47,11 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
     }
 
     private function initialQueue() {
-        $this->queue($this->getEnv(self::MICROSERVICE));
+        $this->queue($this->getEnv(self::CONSUMER_NAME));
     }
 
     private function initialWithFailedQueue() {
-        $queue = $this->getEnv(self::MICROSERVICE);
+        $queue = $this->getEnv(self::CONSUMER_NAME);
         $dlx = $this->getNamespace($queue) . '.failed';
 
         $this->queue($queue, new AMQPTable([
@@ -94,11 +94,14 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $this->callback = $callback;
         $this->debugCallback = $debugCallback;
 
-        $this->channel->basic_consume($this->queue, $this->getEnv(self::MICROSERVICE), false, false, false, false, [$this, 'consumeCallback']);
+        $this->channel->basic_consume($this->queue, $this->getEnv(self::CONSUMER_NAME), false, false, false, false, [$this, 'consumeCallback']);
         register_shutdown_function([$this, 'shutdown'], $this->channel, $this->connection);
         $this->channel->consume();
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function consumeCallback(AMQPMessage $message)
     {
         $newMessage = new NanoServiceMessage($message->getBody(), $message->get_properties());
@@ -121,7 +124,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 
                 if ($newMessage->getRetryCount() < $this->tries) {
                     $newMessage->reject(false);
-                    return false;
+                    throw $e;
                 }
             }
 

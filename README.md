@@ -36,7 +36,7 @@ AMQP_PASS="rmpassword"
 AMQP_VHOST="/"
 
 # Required for the consumer
-AMQP_MICROSERVICE="microservice-name"
+AMQP_CONSUMER_NAME="microservice-consumer-name"
 
 # For publisher encryption 
 AMQP_PRIVATE_KEY="private-key"
