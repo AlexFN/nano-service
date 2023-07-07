@@ -38,6 +38,7 @@ class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
         if ((bool) $this->getEnv(self::PUBLISHER_ENABLED) !== true) return;
 
         $this->message->setEvent($event);
+        $this->message->set('app_id', $this->getNamespace($this->getEnv(self::MICROSERVICE_NAME)));
 
         if ($this->delay) {
             $this->message->set('application_headers', new AMQPTable(['x-delay' => $this->delay]));

@@ -236,9 +236,14 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         return $this->get('message_id');
     }
 
-    public function getType(): string
+    public function getEventName(): string
     {
-        return $this->getType();
+        return $this->get('type');
+    }
+
+    public function getPublisherName(): string
+    {
+        return $this->get('app_id');
     }
 
     // Encrypted attributes
