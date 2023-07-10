@@ -15,7 +15,7 @@ interface NanoPublisher
     /**
      * Set delay
      *
-     * @param int $delay
+     * @param  int  $delay
      * @return self
      */
     public function delay(int $delay): self;

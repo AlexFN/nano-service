@@ -58,7 +58,7 @@ class NanoServiceClass
     protected function exchange(
         string $exchange,
         string $exchangeType = AMQPExchangeType::TOPIC,
-        $arguments = array()
+        $arguments = []
     ): NanoServiceClass {
         $this->exchange = $this->getNamespace($exchange);
 
@@ -68,7 +68,7 @@ class NanoServiceClass
     protected function createExchange(
         string $exchange,
         string $exchangeType = AMQPExchangeType::TOPIC,
-               $arguments = array(),
+               $arguments = [],
         bool $passive = false,
         bool $durable = true,
         bool $auto_delete = false,

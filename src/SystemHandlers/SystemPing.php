@@ -8,13 +8,14 @@ use Exception;
 
 class SystemPing
 {
-    const CONSUMER_HEARTBEAT_URL = "AMQP_CONSUMER_HEARTBEAT_URL";
+    const CONSUMER_HEARTBEAT_URL = 'AMQP_CONSUMER_HEARTBEAT_URL';
 
     use Environment;
 
     /**
-     * @param NanoServiceMessage $message
+     * @param  NanoServiceMessage  $message
      * @return void
+     *
      * @throws Exception
      */
     public function __invoke(NanoServiceMessage $message)
@@ -27,6 +28,7 @@ class SystemPing
     /**
      * @param $url
      * @return void
+     *
      * @throws Exception
      */
     private function sendHeartbeatRequest($url)
@@ -38,8 +40,8 @@ class SystemPing
 
         print_r(curl_exec($ch));
 
-        if(curl_errno($ch)) {
-            throw new Exception('Error cURL: ' . curl_error($ch));
+        if (curl_errno($ch)) {
+            throw new Exception('Error cURL: '.curl_error($ch));
         }
 
         curl_close($ch);

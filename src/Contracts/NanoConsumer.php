@@ -15,8 +15,8 @@ interface NanoConsumer
     /**
      * Add failed queue for consumer
      *
-     * @param int $tries
-     * @param int $ttl
+     * @param  int  $tries
+     * @param  int  $ttl
      * @return self
      */
     public function failed(int $tries, int $ttl): self;

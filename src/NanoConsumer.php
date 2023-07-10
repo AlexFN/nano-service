@@ -12,8 +12,9 @@ use PhpAmqpLib\Wire\AMQPTable;
 class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 {
     protected array $handlers = [
-        'system.ping.1' => SystemPing::class
+        'system.ping.1' => SystemPing::class,
     ];
+
     private $callback;
 
     private $debugCallback;
@@ -46,22 +47,24 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         return $this;
     }
 
-    private function initialQueue() {
+    private function initialQueue()
+    {
         $this->queue($this->getEnv(self::MICROSERVICE_NAME));
     }
 
-    private function initialWithFailedQueue() {
+    private function initialWithFailedQueue()
+    {
         $queue = $this->getEnv(self::MICROSERVICE_NAME);
-        $dlx = $this->getNamespace($queue) . '.failed';
+        $dlx = $this->getNamespace($queue).'.failed';
 
         $this->queue($queue, new AMQPTable([
-            'x-dead-letter-exchange' => $dlx
+            'x-dead-letter-exchange' => $dlx,
         ]));
         $this->createExchange($this->queue);
 
         $this->createQueue($dlx, new AMQPTable([
             'x-message-ttl' => $this->ttl,
-            'x-dead-letter-exchange' => $this->queue
+            'x-dead-letter-exchange' => $this->queue,
         ]));
         $this->createExchange($dlx);
 
@@ -84,7 +87,6 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         return $this;
     }
 
-
     /**
      * @throws ErrorException
      */
@@ -101,8 +103,9 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
     }
 
     /**
-     * @param AMQPMessage $message
+     * @param  AMQPMessage  $message
      * @return void
+     *
      * @throws Exception
      */
     public function consumeCallback(AMQPMessage $message)
@@ -113,24 +116,20 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 
         $key = $message->get('type');
         if (array_key_exists($key, $this->handlers)) {
-
             // System handler
             (new $this->handlers[$key]())($newMessage);
         } else {
-
             // User handler
             $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
 
             try {
                 call_user_func($callback, $newMessage);
             } catch (Exception $e) {
-
                 if ($newMessage->getRetryCount() < $this->tries) {
                     $newMessage->reject(false);
                     throw $e;
                 }
             }
-
         }
 
         $newMessage->ack();

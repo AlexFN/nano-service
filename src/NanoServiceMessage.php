@@ -227,7 +227,6 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         }
     }
 
-
     /**
      * @return string
      */
