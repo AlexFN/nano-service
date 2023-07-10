@@ -84,6 +84,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         return $this;
     }
 
+
     /**
      * @throws ErrorException
      */
@@ -100,7 +101,9 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
     }
 
     /**
-     * @throws \Throwable
+     * @param AMQPMessage $message
+     * @return void
+     * @throws Exception
      */
     public function consumeCallback(AMQPMessage $message)
     {
@@ -120,7 +123,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 
             try {
                 call_user_func($callback, $newMessage);
-            } catch (\Throwable $e) {
+            } catch (Exception $e) {
 
                 if ($newMessage->getRetryCount() < $this->tries) {
                     $newMessage->reject(false);
