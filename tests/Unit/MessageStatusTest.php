@@ -2,6 +2,7 @@
 
 namespace AlexFN\NanoService\Tests\Unit;
 
+use AlexFN\NanoService\Enums\NanoServiceMessageStatuses;
 use AlexFN\NanoService\NanoServiceMessage;
 use PHPUnit\Framework\TestCase;
 
@@ -54,5 +55,26 @@ final class MessageStatusTest extends TestCase
         $this->assertEquals([
             'key1' => 'New value 1',
         ], $this->message->getStatusData());
+    }
+
+    public function testSetStatusSuccess(): void
+    {
+        $this->message->setStatusSuccess();
+
+        $this->assertEquals(NanoServiceMessageStatuses::SUCCESS->value, $this->message->getStatusCode());
+    }
+
+    public function testSetStatusError(): void
+    {
+        $this->message->setStatusError();
+
+        $this->assertEquals(NanoServiceMessageStatuses::ERROR->value, $this->message->getStatusCode());
+    }
+
+    public function testIsStatusSuccess(): void
+    {
+        $this->message->setStatusSuccess();
+
+        $this->assertTrue($this->message->isStatusSuccess());
     }
 }

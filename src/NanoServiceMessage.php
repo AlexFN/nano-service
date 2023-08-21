@@ -3,6 +3,7 @@
 namespace AlexFN\NanoService;
 
 use AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
+use AlexFN\NanoService\Enums\NanoServiceMessageStatuses;
 use AlexFN\NanoService\Traits\Environment;
 use PhpAmqpLib\Message\AMQPMessage;
 use Ramsey\Uuid\Uuid;
@@ -154,6 +155,25 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         $this->setDataAttribute('status', 'data', $data);
 
         return $this;
+    }
+
+    public function setStatusSuccess(): NanoServiceMessageContract
+    {
+        $this->setStatusCode(NanoServiceMessageStatuses::SUCCESS->value);
+
+        return $this;
+    }
+
+    public function setStatusError(): NanoServiceMessageContract
+    {
+        $this->setStatusCode(NanoServiceMessageStatuses::ERROR->value);
+
+        return $this;
+    }
+
+    public function isStatusSuccess(): bool
+    {
+        return NanoServiceMessageStatuses::tryFrom($this->getStatusCode())->isStatusSuccess();
     }
 
     // Meta
