@@ -10,7 +10,7 @@ enum NanoServiceMessageStatuses: string
     case WARNING = 'warning';
     case INFO = 'info';
     case DEBUG = 'debug';
-    
+
     public function isStatusSuccess(): bool
     {
         return $this === self::SUCCESS;
