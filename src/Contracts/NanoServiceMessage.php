@@ -110,4 +110,19 @@ interface NanoServiceMessage
      * @return NanoServiceMessage
      */
     public function setEncryptedAttribute(string $attribute, string $value): self;
+
+    /**
+     * @return string|null
+     */
+    public function getProduct(): ?string;
+
+    /**
+     * @return string|null
+     */
+    public function getEnv(): ?string;
+
+    /**
+     * @return string|null
+     */
+    public function getTenant(): ?string;
 }
