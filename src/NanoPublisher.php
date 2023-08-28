@@ -15,6 +15,22 @@ class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
 
     private ?int $delay = null;
 
+    private ?string $product = null;
+
+    private ?string $env = null;
+
+    private ?string $tenant = null;
+
+    // Set tenant credentials
+    public function setTenant(string $product, string $env, string $tenant): NanoPublisherContract
+    {
+        $this->product = $product;
+        $this->env = $env;
+        $this->tenant = $tenant;
+
+        return $this;
+    }
+
     public function setMessage(NanoServiceMessageContract $message): NanoPublisherContract
     {
         $this->message = $message;
@@ -43,6 +59,14 @@ class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
 
         if ($this->delay) {
             $this->message->set('application_headers', new AMQPTable(['x-delay' => $this->delay]));
+        }
+
+        if ($this->product && $this->env && $this->tenant) {
+            $this->message->addMeta([
+                'product' => $this->product,
+                'env' => $this->env,
+                'tenant' => $this->tenant,
+            ]);
         }
 
         $exchange = $this->getNamespace($this->exchange);
