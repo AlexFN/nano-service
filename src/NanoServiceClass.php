@@ -43,16 +43,6 @@ class NanoServiceClass
     public function __construct(array $config = [])
     {
         $this->config = $config;
-
-        $this->connection = new AMQPStreamConnection(
-            $this->getEnv(self::HOST),
-            $this->getEnv(self::PORT),
-            $this->getEnv(self::USER),
-            $this->getEnv(self::PASS),
-            $this->getEnv(self::VHOST)
-        );
-
-        $this->channel = $this->connection->channel();
     }
 
     protected function exchange(
@@ -75,7 +65,7 @@ class NanoServiceClass
         bool $internal = false,
         bool $nowait = false
     ): NanoServiceClass {
-        $this->channel->exchange_declare($exchange, $exchangeType, $passive, $durable, $auto_delete, $internal, $nowait, $arguments);
+        $this->getChannel()->exchange_declare($exchange, $exchangeType, $passive, $durable, $auto_delete, $internal, $nowait, $arguments);
 
         return $this;
     }
@@ -89,7 +79,7 @@ class NanoServiceClass
 
     protected function createQueue(string $queue, $arguments = [], $passive = false, $durable = true, $exclusive = false, $auto_delete = false, $nowait = false): NanoServiceClass
     {
-        $this->channel->queue_declare($queue, $passive, $durable, $exclusive, $auto_delete, $nowait, $arguments);
+        $this->getChannel()->queue_declare($queue, $passive, $durable, $exclusive, $auto_delete, $nowait, $arguments);
 
         return $this;
     }
@@ -115,5 +105,31 @@ class NanoServiceClass
     public function getNamespace(string $path): string
     {
         return "{$this->getProject()}.$path";
+    }
+
+    public function getChannel()
+    {
+        if (!$this->channel) {
+
+            $this->channel = $this->getConnection()->channel();
+        }
+
+        return $this->channel;
+    }
+
+    public function getConnection(): AMQPStreamConnection
+    {
+        if (!$this->connection) {
+
+            $this->connection = new AMQPStreamConnection(
+                $this->getEnv(self::HOST),
+                $this->getEnv(self::PORT),
+                $this->getEnv(self::USER),
+                $this->getEnv(self::PASS),
+                $this->getEnv(self::VHOST)
+            );
+        }
+
+        return $this->connection;
     }
 }

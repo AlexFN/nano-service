@@ -70,9 +70,9 @@ class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
         }
 
         $exchange = $this->getNamespace($this->exchange);
-        $this->channel->basic_publish($this->message, $exchange, $event);
+        $this->getChannel()->basic_publish($this->message, $exchange, $event);
 
-        $this->channel->close();
-        $this->connection->close();
+        $this->getChannel()->close();
+        $this->getConnection()->close();
     }
 }

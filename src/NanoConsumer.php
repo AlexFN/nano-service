@@ -36,12 +36,12 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $exchange = $this->getNamespace($this->exchange);
 
         foreach ($this->events as $event) {
-            $this->channel->queue_bind($this->queue, $exchange, $event);
+            $this->getChannel()->queue_bind($this->queue, $exchange, $event);
         }
 
         // Bind system events
         foreach (array_keys($this->handlers) as $systemEvent) {
-            $this->channel->queue_bind($this->queue, $exchange, $systemEvent);
+            $this->getChannel()->queue_bind($this->queue, $exchange, $systemEvent);
         }
 
         return $this;
@@ -68,8 +68,8 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         ]));
         $this->createExchange($dlx);
 
-        $this->channel->queue_bind($this->queue, $this->queue, '#');
-        $this->channel->queue_bind($dlx, $dlx, '#');
+        $this->getChannel()->queue_bind($this->queue, $this->queue, '#');
+        $this->getChannel()->queue_bind($dlx, $dlx, '#');
     }
 
     public function events(string ...$events): NanoConsumerContract
@@ -97,9 +97,9 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $this->callback = $callback;
         $this->debugCallback = $debugCallback;
 
-        $this->channel->basic_consume($this->queue, $this->getEnv(self::MICROSERVICE_NAME), false, false, false, false, [$this, 'consumeCallback']);
-        register_shutdown_function([$this, 'shutdown'], $this->channel, $this->connection);
-        $this->channel->consume();
+        $this->getChannel()->basic_consume($this->queue, $this->getEnv(self::MICROSERVICE_NAME), false, false, false, false, [$this, 'consumeCallback']);
+        register_shutdown_function([$this, 'shutdown'], $this->getChannel(), $this->getConnection());
+        $this->getChannel()->consume();
     }
 
     /**
@@ -140,7 +140,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
      */
     public function shutdown()
     {
-        $this->channel->close();
-        $this->connection->close();
+        $this->getChannel()->close();
+        $this->getConnection()->close();
     }
 }
