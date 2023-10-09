@@ -13,7 +13,6 @@ class SystemPing
     use Environment;
 
     /**
-     * @param  NanoServiceMessage  $message
      * @return void
      *
      * @throws Exception
@@ -26,7 +25,6 @@ class SystemPing
     }
 
     /**
-     * @param $url
      * @return void
      *
      * @throws Exception

@@ -159,21 +159,21 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
 
     public function setStatusSuccess(): NanoServiceMessageContract
     {
-        $this->setStatusCode(NanoServiceMessageStatuses::SUCCESS->value);
+        $this->setStatusCode(NanoServiceMessageStatuses::SUCCESS());
 
         return $this;
     }
 
     public function setStatusError(): NanoServiceMessageContract
     {
-        $this->setStatusCode(NanoServiceMessageStatuses::ERROR->value);
+        $this->setStatusCode(NanoServiceMessageStatuses::ERROR());
 
         return $this;
     }
 
     public function isStatusSuccess(): bool
     {
-        return NanoServiceMessageStatuses::tryFrom($this->getStatusCode())->isStatusSuccess();
+        return NanoServiceMessageStatuses::from($this->getStatusCode())->isStatusSuccess();
     }
 
     // Meta
@@ -233,9 +233,6 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
 
     // Get message attributes
 
-    /**
-     * @return int
-     */
     public function getRetryCount(): int
     {
         $table = $this->get_properties()['application_headers'] ?? null;
@@ -247,9 +244,6 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         }
     }
 
-    /**
-     * @return string
-     */
     public function getId(): string
     {
         return $this->get('message_id');
@@ -284,9 +278,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     // Encrypted attributes
 
     /**
-     * @param  string  $attribute
      * @param  null  $default
-     * @return string
      *
      * @throws CouldNotDecryptData
      */

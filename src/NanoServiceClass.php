@@ -58,7 +58,7 @@ class NanoServiceClass
     protected function createExchange(
         string $exchange,
         string $exchangeType = AMQPExchangeType::TOPIC,
-               $arguments = [],
+        $arguments = [],
         bool $passive = false,
         bool $durable = true,
         bool $auto_delete = false,
@@ -109,7 +109,7 @@ class NanoServiceClass
 
     public function getChannel()
     {
-        if (!$this->channel) {
+        if (! $this->channel) {
 
             $this->channel = $this->getConnection()->channel();
         }
@@ -119,7 +119,7 @@ class NanoServiceClass
 
     public function getConnection(): AMQPStreamConnection
     {
-        if (!$this->connection) {
+        if (! $this->connection) {
 
             $this->connection = new AMQPStreamConnection(
                 $this->getEnv(self::HOST),

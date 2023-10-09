@@ -2,17 +2,55 @@
 
 namespace AlexFN\NanoService\Enums;
 
-enum NanoServiceMessageStatuses: string
+use MyCLabs\Enum\Enum;
+
+final class NanoServiceMessageStatuses extends Enum
 {
-    case UNKNOWN = 'unknown';
-    case SUCCESS = 'success';
-    case ERROR = 'error';
-    case WARNING = 'warning';
-    case INFO = 'info';
-    case DEBUG = 'debug';
+    private const UNKNOWN = 'unknown';
+
+    private const SUCCESS = 'success';
+
+    private const ERROR = 'error';
+
+    private const WARNING = 'warning';
+
+    private const INFO = 'info';
+
+    private const DEBUG = 'debug';
 
     public function isStatusSuccess(): bool
     {
-        return $this === self::SUCCESS;
+        return $this->value === self::SUCCESS;
+    }
+
+    // IDE autocompletion
+    public static function UNKNOWN(): NanoServiceMessageStatuses
+    {
+        return new NanoServiceMessageStatuses(self::UNKNOWN);
+    }
+
+    public static function SUCCESS(): NanoServiceMessageStatuses
+    {
+        return new NanoServiceMessageStatuses(self::SUCCESS);
+    }
+
+    public static function ERROR(): NanoServiceMessageStatuses
+    {
+        return new NanoServiceMessageStatuses(self::ERROR);
+    }
+
+    public static function WARNING(): NanoServiceMessageStatuses
+    {
+        return new NanoServiceMessageStatuses(self::WARNING);
+    }
+
+    public static function INFO(): NanoServiceMessageStatuses
+    {
+        return new NanoServiceMessageStatuses(self::INFO);
+    }
+
+    public static function DEBUG(): NanoServiceMessageStatuses
+    {
+        return new NanoServiceMessageStatuses(self::DEBUG);
     }
 }

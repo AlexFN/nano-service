@@ -61,14 +61,14 @@ final class MessageStatusTest extends TestCase
     {
         $this->message->setStatusSuccess();
 
-        $this->assertEquals(NanoServiceMessageStatuses::SUCCESS->value, $this->message->getStatusCode());
+        $this->assertEquals(NanoServiceMessageStatuses::SUCCESS(), $this->message->getStatusCode());
     }
 
     public function testSetStatusError(): void
     {
         $this->message->setStatusError();
 
-        $this->assertEquals(NanoServiceMessageStatuses::ERROR->value, $this->message->getStatusCode());
+        $this->assertEquals(NanoServiceMessageStatuses::ERROR(), $this->message->getStatusCode());
     }
 
     public function testIsStatusSuccess(): void
