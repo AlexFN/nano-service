@@ -12,7 +12,7 @@ interface NanoPublisher
     /**
      * Set tenant credentials
      */
-    public function setTenant(string $product, string $env, string $tenant): self;
+    public function setMeta(array $data): self;
 
     /**
      * Set delay
