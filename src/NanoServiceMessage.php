@@ -207,6 +207,12 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     }
 
     // Event property
+    public function setId(string $id): NanoServiceMessageContract
+    {
+        $this->set('message_id', $id);
+
+        return $this;
+    }
 
     public function setEvent(string $event): NanoServiceMessageContract
     {
