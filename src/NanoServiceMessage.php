@@ -266,17 +266,17 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     }
 
     // Get tenant attributes
-    public function getProduct(): ?string
+    public function getTenantProduct(): ?string
     {
         return $this->getMetaAttribute('product');
     }
 
-    public function getEnv(): ?string
+    public function getTenantEnv(): ?string
     {
         return $this->getMetaAttribute('env');
     }
 
-    public function getTenant(): ?string
+    public function getTenantSlug(): ?string
     {
         return $this->getMetaAttribute('tenant');
     }
