@@ -47,9 +47,9 @@ interface NanoServiceMessage
 
     public function setEncryptedAttribute(string $attribute, string $value): self;
 
-    public function getProduct(): ?string;
+    public function getTenantProduct(): ?string;
 
-    public function getEnv(): ?string;
+    public function getTenantEnv(): ?string;
 
-    public function getTenant(): ?string;
+    public function getTenantSlug(): ?string;
 }
