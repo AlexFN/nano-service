@@ -4,7 +4,7 @@ namespace AlexFN\NanoService\Traits;
 
 trait Environment
 {
-    private $config = [];
+    protected $config = [];
 
     protected $prefix = 'AMQP_';
 
