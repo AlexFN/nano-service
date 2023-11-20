@@ -3,8 +3,10 @@
 namespace AlexFN\NanoService;
 
 use AlexFN\NanoService\Contracts\NanoServiceMessage as NanoServiceMessageContract;
+use AlexFN\NanoService\Enums\NanoNotificatorErrorCodes;
 use AlexFN\NanoService\Enums\NanoServiceMessageStatuses;
 use AlexFN\NanoService\Traits\Environment;
+use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
 use Ramsey\Uuid\Uuid;
 use Spatie\Crypto\Rsa\Exceptions\CouldNotDecryptData;
@@ -44,7 +46,9 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     protected function dataStructure(): array
     {
         return [
-            'meta' => [],
+            'meta' => [
+                'created_at' => date('Y-m-d H:i:s'),
+            ],
             'status' => [
                 'code' => 'unknown',
                 'data' => [],
@@ -128,12 +132,32 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     }
 
     // Status
+    public function setStatus(array $payload): NanoServiceMessageContract
+    {
+        $this->addData('status', $payload, true);
+
+        return $this;
+    }
 
     public function getStatusCode(): string
     {
         $statusData = $this->getDataAttribute('status');
 
         return $statusData['code'] ?? '';
+    }
+
+    public function getStatusDebug(): string
+    {
+        $statusData = $this->getDataAttribute('status');
+
+        return $statusData['debug'] ?? '';
+    }
+
+    public function getStatusError(): string
+    {
+        $statusData = $this->getDataAttribute('status');
+
+        return $statusData['error'] ?? '';
     }
 
     public function setStatusCode(string $code): NanoServiceMessageContract
@@ -281,6 +305,18 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         return $this->getMetaAttribute('tenant');
     }
 
+    public function getCreatedAt(): string
+    {
+        return $this->getMetaAttribute('created_at');
+    }
+
+    public function setCreatedAt(string $date): NanoServiceMessageContract
+    {
+        $this->setDataAttribute('meta', 'created_at', $date);
+
+        return $this;
+    }
+
     // Encrypted attributes
 
     /**
@@ -301,16 +337,33 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         return $encryptedAttribute ? $this->public_key->decrypt(base64_decode($encryptedAttribute)) : $default;
     }
 
+    /**
+     * @throws Exception
+     */
     public function setEncryptedAttribute(string $attribute, string $value): NanoServiceMessageContract
     {
-        if (! $this->private_key) {
-            $this->private_key = PrivateKey::fromString($this->getEnv(self::PRIVATE_KEY));
-        }
-
-        $encryptedAttribute = base64_encode($this->private_key->encrypt($value));
+        $encryptedAttribute = $this->encryptedAttribute($attribute, $value);
 
         $this->setDataAttribute('encrypted', $attribute, $encryptedAttribute);
 
         return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function encryptedAttribute(string $attribute, string $value): string
+    {
+        if (! $this->private_key) {
+            $private_key = PrivateKey::fromString($this->getEnv(self::PRIVATE_KEY));
+
+            if (! $private_key) {
+                throw new Exception('Private key not found');
+            }
+
+            $this->private_key = $private_key;
+        }
+
+        return  base64_encode($this->private_key->encrypt($value));
     }
 }
