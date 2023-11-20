@@ -151,6 +151,6 @@ class NanoNotificator extends NanoPublisher implements NanoNotificatorContract
                 'channel_type' => $this->channelType,
             ]);
 
-        $this->publish(self::EVENT_PREFIX . ".$this->billingType.$this->channelType");
+        $this->setMessage($this->message)->publish(self::EVENT_PREFIX . ".$this->billingType.$this->channelType");
     }
 }
