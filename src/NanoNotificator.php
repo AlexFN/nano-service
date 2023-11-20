@@ -111,6 +111,31 @@ class NanoNotificator extends NanoPublisher implements NanoNotificatorContract
         $this->sendEvent('deferred', $code, $debug);
     }
 
+    public function publishCallbackFailed(NanoServiceMessage $message): void
+    {
+        $failedEvents = $message->getPayload()['failed'] ?? null;
+        if (empty($failedEvents)) {
+            return;
+        }
+
+        foreach ($failedEvents as $failed) {
+            if (isset($failed['event']) && $failed['event'] != '') {
+                $nanoMessage = (new NanoServiceMessage([
+                    'payload' => $failed['payload'] ?? [],
+                    'encrypted' => $failed['encrypted'] ?? [],
+                    'meta' => $failed['meta'] ?? [],
+                    'system' => $failed['system'] ?? [],
+                    'status' => $failed['status'] ?? [],
+                ]));
+
+                $nanoMessage->setId($message->getId());
+
+                $this->setMessage($nanoMessage)
+                    ->publish($failed['event']);
+            }
+        }
+    }
+
     /**
      * @throws Exception
      */

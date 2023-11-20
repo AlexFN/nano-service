@@ -3,6 +3,7 @@
 namespace AlexFN\NanoService\Contracts;
 
 use AlexFN\NanoService\Enums\NanoNotificatorErrorCodes;
+use AlexFN\NanoService\NanoServiceMessage;
 
 interface NanoNotificator
 {
@@ -33,4 +34,6 @@ interface NanoNotificator
     public function unknown(NanoNotificatorErrorCodes $code, string $debug = null): void;
 
     public function deferred(NanoNotificatorErrorCodes $code, string $debug = null): void;
+
+    public function publishCallbackFailed(NanoServiceMessage $message): void;
 }
