@@ -151,31 +151,18 @@ class NanoLogger extends NanoPublisher implements NanoLoggerContract
     /**
      * @throws Exception
      */
-    private function sendEvent(string $status, NanoNotificatorErrorCodes $code, string $debug = null)
+    private function sendEvent(string $status, NanoNotificatorErrorCodes $code, string $debug = null, string $replyTo = null)
     {
-        $billingType = $this->getMessageMetaAttribute('billing_type');
-        $channelType = $this->getMessageMetaAttribute('channel_type');
-        $loggerType = $this->getMessageMetaAttribute('logger_type');
+        $payload = [
+            'code' => $status,
+            'error' => $code->getValue(),
+            'debug' => $debug
+        ];
 
         $message = new NanoServiceMessage();
         $message->setId($this->message->getId());
-        $message
-            ->setStatus([
-                'code' => $status,
-                'error' => $code->getValue(),
-                'debug' => $debug
-            ])->addMeta([
-                'billing_type' => $billingType,
-                'channel_type' => $channelType,
-                'logger_type' => $loggerType,
-                'original_event' => $this->message->get('type'),
-            ]);
+        $message->addPayload($payload);
 
-        $this->setMessage($message)->publish(self::EVENT_PREFIX . ".$loggerType.$billingType.$channelType");
-    }
-
-    private function getMessageMetaAttribute(string $attribute)
-    {
-        return $this->message->getMetaAttribute($attribute, 'unknown');
+        $this->setMessage($message)->publish($replyTo ?? $this->message->getPayloadAttribute('reply-to'));
     }
 }
