@@ -32,8 +32,9 @@ final class NanoNotificatorErrorCodes extends Enum
     private const CONTENT_FILTER = 52;
     private const CONSENT_FILTER = 53;
     private const REGULATION_ERROR = 54;
+    private const INVALID_CREDENTIALS = 98;
     private const GENERAL_ERROR = 99;
-
+    
     // IDE autocompletion
 
     /**
@@ -242,6 +243,14 @@ final class NanoNotificatorErrorCodes extends Enum
     public static function REGULATION_ERROR(): NanoNotificatorErrorCodes
     {
         return new NanoNotificatorErrorCodes(self::REGULATION_ERROR);
+    }
+
+    /**
+     * Invalid Credentials	Some of the credentials are invalid.
+     */
+    public static function INVALID_CREDENTIALS(): NanoNotificatorErrorCodes
+    {
+        return new NanoNotificatorErrorCodes(self::INVALID_CREDENTIALS);
     }
 
     /**
