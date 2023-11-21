@@ -9,7 +9,7 @@ use Exception;
 class NanoLogger extends NanoPublisher implements NanoLoggerContract
 {
 
-    const EVENT_PREFIX = 'logs.notifications';
+    const EVENT_PREFIX = 'logs';
     private NanoServiceMessage $message;
 
     public function setLog(NanoServiceMessage $message): NanoLoggerContract
@@ -155,6 +155,7 @@ class NanoLogger extends NanoPublisher implements NanoLoggerContract
     {
         $billingType = $this->getMessageMetaAttribute('billing_type');
         $channelType = $this->getMessageMetaAttribute('channel_type');
+        $loggerType = $this->getMessageMetaAttribute('logger_type');
 
         $message = new NanoServiceMessage();
         $message->setId($this->message->getId());
@@ -166,10 +167,11 @@ class NanoLogger extends NanoPublisher implements NanoLoggerContract
             ])->addMeta([
                 'billing_type' => $billingType,
                 'channel_type' => $channelType,
+                'logger_type' => $loggerType,
                 'original_event' => $this->message->get('type'),
             ]);
 
-        $this->setMessage($message)->publish(self::EVENT_PREFIX . ".$billingType.$channelType");
+        $this->setMessage($message)->publish(self::EVENT_PREFIX . ".$loggerType.$billingType.$channelType");
     }
 
     private function getMessageMetaAttribute(string $attribute)
