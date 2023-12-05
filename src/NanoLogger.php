@@ -161,6 +161,7 @@ class NanoLogger extends NanoPublisher implements NanoLoggerContract
 
         $message = new NanoServiceMessage();
         $message->setId($this->message->getId());
+        $message->addMeta($this->message->getMeta());
         $message->addPayload($payload);
 
         $messageReplyTo = $this->message->getPayloadAttribute('reply-to');
