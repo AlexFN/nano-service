@@ -44,7 +44,7 @@ class NanoLogger extends NanoPublisher implements NanoLoggerContract
      */
     public function delivered(NanoNotificatorErrorCodes $code = null, string $debug = null): NanoLoggerContract
     {
-        if ($code) {
+        if (!$code) {
             $code = NanoNotificatorErrorCodes::DELIVERED();
         }
 
@@ -154,6 +154,7 @@ class NanoLogger extends NanoPublisher implements NanoLoggerContract
     private function sendEvent(string $status, NanoNotificatorErrorCodes $code, string $debug = null, string $replyTo = null)
     {
         $payload = [
+            'event' => $this->message->get('type'),
             'code' => $status,
             'error' => $code->getValue(),
             'debug' => $debug
