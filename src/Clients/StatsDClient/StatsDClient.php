@@ -32,10 +32,10 @@ class StatsDClient
             return;
         }
 
+        $this->tags = $tags;
         $this->addTags([
             'retry' => $eventRetryStatusTag->value
         ]);
-        $this->tags = $tags;
         $this->start = microtime(true);
         $this->statsd->increment("event_started_count", 1, 1, $this->tags);
     }
