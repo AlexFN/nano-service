@@ -2,8 +2,8 @@
 
 namespace AlexFN\NanoService;
 
-use AlexFN\NanoService\Clients\StatsDClient\Enums\EventStatusTag;
-use AlexFN\NanoService\Clients\StatsDClient\Enums\RetryTag;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\EventExitStatusTag;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\EventRetryStatusTag;
 use AlexFN\NanoService\Clients\StatsDClient\StatsDClient;
 use AlexFN\NanoService\Contracts\NanoConsumer as NanoConsumerContract;
 use AlexFN\NanoService\SystemHandlers\SystemPing;
@@ -140,11 +140,6 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $newMessage->setDeliveryTag($message->getDeliveryTag());
         $newMessage->setChannel($message->getChannel());
 
-        $this->statsD->start([
-            'nano_service_name' => $this->getEnv(self::MICROSERVICE_NAME),
-            'event_name' => $newMessage->getEventName()
-        ]);
-
         $key = $message->get('type');
 
         // Check system handlers
@@ -158,14 +153,19 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
 
         $retryCount = $newMessage->getRetryCount() + 1;
-        $retryTag = $this->getRetryTag($retryCount);
+        $eventRetryStatusTag = $this->getRetryTag($retryCount);
+
+        $this->statsD->start([
+            'nano_service_name' => $this->getEnv(self::MICROSERVICE_NAME),
+            'event_name' => $newMessage->getEventName()
+        ], $eventRetryStatusTag);
 
         try {
 
             call_user_func($callback, $newMessage);
             $message->ack();
 
-            $this->statsD->end(EventStatusTag::SUCCESS, $retryTag);
+            $this->statsD->end(EventExitStatusTag::SUCCESS, $eventRetryStatusTag);
 
         } catch (Throwable $exception) {
 
@@ -186,7 +186,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
                 $this->getChannel()->basic_publish($newMessage, $this->queue, $key);
                 $message->ack();
 
-                $this->statsD->end(EventStatusTag::FAILED, $retryTag);
+                $this->statsD->end(EventExitStatusTag::FAILED, $eventRetryStatusTag);
 
             } else {
 
@@ -205,7 +205,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
                 $message->ack();
                 //$message->reject(false);
 
-                $this->statsD->end(EventStatusTag::FAILED, $retryTag);
+                $this->statsD->end(EventExitStatusTag::FAILED, $eventRetryStatusTag);
 
             }
 
@@ -235,12 +235,12 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         return $this->backoff * 1000;
     }
 
-    private function getRetryTag(int $retryCount): RetryTag
+    private function getRetryTag(int $retryCount): EventRetryStatusTag
     {
         return match ($retryCount) {
-            1 => RetryTag::FIRST,
-            $this->tries => RetryTag::LAST,
-            default => RetryTag::RETRY,
+            1 => EventRetryStatusTag::FIRST,
+            $this->tries => EventRetryStatusTag::LAST,
+            default => EventRetryStatusTag::RETRY,
         };
     }
 }

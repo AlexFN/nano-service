@@ -2,7 +2,7 @@
 
 namespace AlexFN\NanoService\Clients\StatsDClient\Enums;
 
-enum RetryTag: string
+enum EventRetryStatusTag: string
 {
     case FIRST = 'first';
     case RETRY = 'retry';

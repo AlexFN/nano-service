@@ -2,7 +2,7 @@
 
 namespace AlexFN\NanoService\Clients\StatsDClient\Enums;
 
-enum EventStatusTag: string
+enum EventExitStatusTag: string
 {
     case SUCCESS = 'success';
 

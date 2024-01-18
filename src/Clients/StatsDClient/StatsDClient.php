@@ -2,8 +2,8 @@
 
 namespace AlexFN\NanoService\Clients\StatsDClient;
 
-use AlexFN\NanoService\Clients\StatsDClient\Enums\EventStatusTag;
-use AlexFN\NanoService\Clients\StatsDClient\Enums\RetryTag;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\EventExitStatusTag;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\EventRetryStatusTag;
 use League\StatsD\Client;
 
 class StatsDClient
@@ -26,26 +26,29 @@ class StatsDClient
         }
     }
 
-    public function start(array $tags): void
-    {
-        if (!$this->canStartService) {
-            return;
-        }
-
-        $this->tags = $tags;
-        $this->start = microtime(true);
-        $this->statsd->increment("event_started_count", 1, 1, $this->tags);
-    }
-
-    public function end(EventStatusTag $status, RetryTag $retry): void
+    public function start(array $tags, EventRetryStatusTag $eventRetryStatusTag): void
     {
         if (!$this->canStartService) {
             return;
         }
 
         $this->addTags([
-            'status' => $status->value,
-            'retry' => $retry->value
+            'retry' => $eventRetryStatusTag->value
+        ]);
+        $this->tags = $tags;
+        $this->start = microtime(true);
+        $this->statsd->increment("event_started_count", 1, 1, $this->tags);
+    }
+
+    public function end(EventExitStatusTag $eventExitStatusTag, EventRetryStatusTag $eventRetryStatusTag): void
+    {
+        if (!$this->canStartService) {
+            return;
+        }
+
+        $this->addTags([
+            'status' => $eventExitStatusTag->value,
+            'retry' => $eventRetryStatusTag->value
         ]);
         $this->statsd->timing(
             "event_processed_duration",
