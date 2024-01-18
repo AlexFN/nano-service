@@ -46,9 +46,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     protected function dataStructure(): array
     {
         return [
-            'meta' => [
-                'created_at' => date('Y-m-d H:i:s'),
-            ],
+            'meta' => [],
             'status' => [
                 'code' => 'unknown',
                 'data' => [],
@@ -56,7 +54,8 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
             'payload' => [],
             'system' => [
                 'is_debug' => false,
-                'consumer_error' => null
+                'consumer_error' => null,
+                'created_at' => date('Y-m-d H:i:s')
             ],
             'encrypted' => [],
         ];
@@ -196,6 +195,19 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         return $this;
     }
 
+    public function getCreatedAt(): string
+    {
+        $system = $this->getDataAttribute('system');
+        return $system['created_at'] ?? '';
+    }
+
+    public function setCreatedAt(string $date): NanoServiceMessageContract
+    {
+        $this->setDataAttribute('system', 'created_at', $date);
+
+        return $this;
+    }
+
     public function setStatusSuccess(): NanoServiceMessageContract
     {
         $this->setStatusCode(NanoServiceMessageStatuses::SUCCESS());
@@ -317,18 +329,6 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     public function getTenantSlug(): ?string
     {
         return $this->getMetaAttribute('tenant');
-    }
-
-    public function getCreatedAt(): string
-    {
-        return $this->getMetaAttribute('created_at');
-    }
-
-    public function setCreatedAt(string $date): NanoServiceMessageContract
-    {
-        $this->setDataAttribute('meta', 'created_at', $date);
-
-        return $this;
     }
 
     // Encrypted attributes

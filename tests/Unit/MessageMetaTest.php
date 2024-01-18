@@ -59,7 +59,7 @@ final class MessageMetaTest extends TestCase
                 'key3' => 'New value 3',
             ]);
 
-        $this->assertContains([
+        $this->assertEquals([
             'key1' => 'Value 1',
             'key2' => 'Value 2',
             'key3' => 'New value 3',
@@ -78,7 +78,7 @@ final class MessageMetaTest extends TestCase
                 'key3' => 'New value 3',
             ], true);
 
-        $this->assertContains([
+        $this->assertEquals([
             'key1' => 'New value 1',
             'key2' => 'Value 2',
             'key3' => 'New value 3',
@@ -97,7 +97,7 @@ final class MessageMetaTest extends TestCase
                 'key3' => 'New value 3',
             ]);
 
-        $this->assertContains([
+        $this->assertEquals([
             'key1' => 'Value 1',
             'key2' => 'Value 2',
         ], $this->message->getMeta());
@@ -115,7 +115,7 @@ final class MessageMetaTest extends TestCase
                 'key3' => 'New value 3',
             ], true);
 
-        $this->assertContains([
+        $this->assertEquals([
             'key1' => 'Value 1',
             'key2' => [
                 'key1' => 'New value 1',

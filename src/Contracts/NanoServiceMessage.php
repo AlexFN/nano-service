@@ -27,6 +27,10 @@ interface NanoServiceMessage
 
     public function setConsumerError(string $msg): self;
 
+    public function getCreatedAt(): string;
+
+    public function setCreatedAt(string $date): self;
+
     public function getMeta(): array;
 
     /**
