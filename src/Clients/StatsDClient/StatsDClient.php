@@ -2,7 +2,8 @@
 
 namespace AlexFN\NanoService\Clients\StatsDClient;
 
-use AlexFN\NanoService\Clients\StatsDClient\Enums\StatsDStatus;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\EventStatusTag;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\RetryTag;
 use League\StatsD\Client;
 
 class StatsDClient
@@ -12,6 +13,8 @@ class StatsDClient
     private Client $statsd;
 
     private float $start;
+
+    private array $tags = [];
 
     public function __construct($config = [])
     {
@@ -29,23 +32,31 @@ class StatsDClient
             return;
         }
 
+        $this->tags = $tags;
         $this->start = microtime(true);
-        $this->statsd->increment("event_started_count", 1, 1, $tags);
+        $this->statsd->increment("event_started_count", 1, 1, $this->tags);
     }
 
-    public function end(StatsDStatus $status): void
+    public function end(EventStatusTag $status, RetryTag $retry): void
     {
         if (!$this->canStartService) {
             return;
         }
 
+        $this->addTags([
+            'status' => $status->value,
+            'retry' => $retry->value
+        ]);
         $this->statsd->timing(
             "event_processed_duration",
             (microtime(true) - $this->start) * 1000,
-            [
-                'status' => $status->value
-            ]
+            $this->tags
         );
+    }
+
+    private function addTags(array $tags): void
+    {
+        $this->tags = array_merge($this->tags, $tags);
     }
 
 }

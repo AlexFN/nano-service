@@ -2,7 +2,8 @@
 
 namespace AlexFN\NanoService;
 
-use AlexFN\NanoService\Clients\StatsDClient\Enums\StatsDStatus;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\EventStatusTag;
+use AlexFN\NanoService\Clients\StatsDClient\Enums\RetryTag;
 use AlexFN\NanoService\Clients\StatsDClient\StatsDClient;
 use AlexFN\NanoService\Contracts\NanoConsumer as NanoConsumerContract;
 use AlexFN\NanoService\SystemHandlers\SystemPing;
@@ -156,12 +157,15 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         // User handler
         $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
 
+        $retryCount = $newMessage->getRetryCount() + 1;
+        $retryTag = $this->getRetryTag($retryCount);
+
         try {
 
             call_user_func($callback, $newMessage);
             $message->ack();
 
-            $this->statsD->end(StatsDStatus::SUCCESS);
+            $this->statsD->end(EventStatusTag::SUCCESS, $retryTag);
 
         } catch (Throwable $exception) {
 
@@ -182,7 +186,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
                 $this->getChannel()->basic_publish($newMessage, $this->queue, $key);
                 $message->ack();
 
-                $this->statsD->end(StatsDStatus::CATCH);
+                $this->statsD->end(EventStatusTag::FAILED, $retryTag);
 
             } else {
 
@@ -201,7 +205,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
                 $message->ack();
                 //$message->reject(false);
 
-                $this->statsD->end(StatsDStatus::FAILED);
+                $this->statsD->end(EventStatusTag::FAILED, $retryTag);
 
             }
 
@@ -229,5 +233,14 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         }
 
         return $this->backoff * 1000;
+    }
+
+    private function getRetryTag(int $retryCount): RetryTag
+    {
+        return match ($retryCount) {
+            1 => RetryTag::FIRST,
+            $this->tries => RetryTag::LAST,
+            default => RetryTag::RETRY,
+        };
     }
 }
