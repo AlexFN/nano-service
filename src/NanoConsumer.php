@@ -2,32 +2,47 @@
 
 namespace AlexFN\NanoService;
 
+use AlexFN\NanoService\Clients\StatsDClient\Enums\StatsDStatus;
+use AlexFN\NanoService\Clients\StatsDClient\StatsDClient;
 use AlexFN\NanoService\Contracts\NanoConsumer as NanoConsumerContract;
 use AlexFN\NanoService\SystemHandlers\SystemPing;
 use ErrorException;
-use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
+use Throwable;
 
 class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
 {
+    const FAILED_POSTFIX = '.failed';
     protected array $handlers = [
         'system.ping.1' => SystemPing::class,
     ];
 
+    private StatsDClient $statsD;
+
     private $callback;
+
+    private $catchCallback;
+
+    private $failedCallback;
 
     private $debugCallback;
 
     private array $events;
 
-    private int $tries = 0;
+    private int $tries = 3;
 
-    private int $ttl = 0;
+    private int|array $backoff = 0;
 
     public function init(): NanoConsumerContract
     {
-        if ($this->tries && $this->ttl) {
+        $this->statsD = new StatsDClient([
+            'host' => $this->getEnv('STATSD_HOST'),
+            'port' => $this->getEnv('STATSD_PORT'),
+            'namespace' => $this->getEnv('STATSD_NAMESPACE'),
+        ]);
+
+        if ($this->tries && $this->backoff) {
             $this->initialWithFailedQueue();
         } else {
             $this->initialQueue();
@@ -47,29 +62,25 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         return $this;
     }
 
-    private function initialQueue()
+    private function initialQueue(): void
     {
         $this->queue($this->getEnv(self::MICROSERVICE_NAME));
     }
 
-    private function initialWithFailedQueue()
+    private function initialWithFailedQueue(): void
     {
         $queue = $this->getEnv(self::MICROSERVICE_NAME);
-        $dlx = $this->getNamespace($queue).'.failed';
+        $dlx = $this->getNamespace($queue).self::FAILED_POSTFIX;
 
         $this->queue($queue, new AMQPTable([
             'x-dead-letter-exchange' => $dlx,
         ]));
-        $this->createExchange($this->queue);
-
-        $this->createQueue($dlx, new AMQPTable([
-            'x-message-ttl' => $this->ttl,
-            'x-dead-letter-exchange' => $this->queue,
+        $this->createExchange($this->queue, 'x-delayed-message', new AMQPTable([
+            'x-delayed-type' => 'topic',
         ]));
-        $this->createExchange($dlx);
 
+        $this->createQueue($dlx);
         $this->getChannel()->queue_bind($this->queue, $this->queue, '#');
-        $this->getChannel()->queue_bind($dlx, $dlx, '#');
     }
 
     public function events(string ...$events): NanoConsumerContract
@@ -79,10 +90,16 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         return $this;
     }
 
-    public function failed(int $tries, int $ttl): NanoConsumerContract
+    public function tries(int $attempts): NanoConsumerContract
     {
-        $this->tries = $tries;
-        $this->ttl = $ttl;
+        $this->tries = $attempts;
+
+        return $this;
+    }
+
+    public function backoff(int|array $seconds): NanoConsumerContract
+    {
+        $this->backoff = $seconds;
 
         return $this;
     }
@@ -102,44 +119,115 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $this->getChannel()->consume();
     }
 
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function consumeCallback(AMQPMessage $message)
+    public function catch(callable $callback): NanoConsumerContract
+    {
+        $this->catchCallback = $callback;
+
+        return $this;
+    }
+
+    public function failed(callable $callback): NanoConsumerContract
+    {
+        $this->failedCallback = $callback;
+
+        return $this;
+    }
+
+    public function consumeCallback(AMQPMessage $message): void
     {
         $newMessage = new NanoServiceMessage($message->getBody(), $message->get_properties());
         $newMessage->setDeliveryTag($message->getDeliveryTag());
         $newMessage->setChannel($message->getChannel());
 
-        $key = $message->get('type');
-        if (array_key_exists($key, $this->handlers)) {
-            // System handler
-            (new $this->handlers[$key]())($newMessage);
-        } else {
-            // User handler
-            $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
+        $this->statsD->start([
+            'nano_service_name' => $this->getEnv(self::MICROSERVICE_NAME),
+            'event_name' => $newMessage->getEventName()
+        ]);
 
-            try {
-                call_user_func($callback, $newMessage);
-            } catch (Exception $e) {
-                if ($newMessage->getRetryCount() < $this->tries) {
-                    $newMessage->reject(false);
-                    throw $e;
-                }
-            }
+        $key = $message->get('type');
+
+        // Check system handlers
+        if (array_key_exists($key, $this->handlers)) {
+            (new $this->handlers[$key]())($newMessage);
+            $message->ack();
+            return;
         }
 
-        $newMessage->ack();
+        // User handler
+        $callback = $newMessage->getDebug() && is_callable($this->debugCallback) ? $this->debugCallback : $this->callback;
+
+        try {
+
+            call_user_func($callback, $newMessage);
+            $message->ack();
+
+            $this->statsD->end(StatsDStatus::SUCCESS);
+
+        } catch (Throwable $exception) {
+
+            $retryCount = $newMessage->getRetryCount() + 1;
+            if ($retryCount < $this->tries) {
+
+                try {
+                    if (is_callable($this->catchCallback)) {
+                        call_user_func($this->catchCallback, $exception, $newMessage);
+                    }
+                } catch (Throwable $e) {}
+
+                $headers = new AMQPTable([
+                    'x-delay' => $this->getBackoff($retryCount),
+                    'x-retry-count' => $retryCount
+                ]);
+                $newMessage->set('application_headers', $headers);
+                $this->getChannel()->basic_publish($newMessage, $this->queue, $key);
+                $message->ack();
+
+                $this->statsD->end(StatsDStatus::CATCH);
+
+            } else {
+
+                try {
+                    if (is_callable($this->failedCallback)) {
+                        call_user_func($this->failedCallback, $exception, $newMessage);
+                    }
+                } catch (Throwable $e) {}
+
+                $headers = new AMQPTable([
+                    'x-retry-count' => $retryCount
+                ]);
+                $newMessage->set('application_headers', $headers);
+                $newMessage->setConsumerError($exception->getMessage());
+                $this->getChannel()->basic_publish($newMessage, '', $this->queue . self::FAILED_POSTFIX);
+                $message->ack();
+                //$message->reject(false);
+
+                $this->statsD->end(StatsDStatus::FAILED);
+
+            }
+
+        }
+
     }
 
     /**
-     * @throws Exception
+     * @throws Throwable
      */
-    public function shutdown()
+    public function shutdown(): void
     {
         $this->getChannel()->close();
         $this->getConnection()->close();
+    }
+
+    private function getBackoff(int $retryCount): int
+    {
+        if (is_array($this->backoff)) {
+            $count = $retryCount - 1;
+            $lastIndex = count($this->backoff) - 1;
+            $index = min($count, $lastIndex);
+
+            return $this->backoff[$index] * 1000;
+        }
+
+        return $this->backoff * 1000;
     }
 }

@@ -56,6 +56,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
             'payload' => [],
             'system' => [
                 'is_debug' => false,
+                'consumer_error' => null
             ],
             'encrypted' => [],
         ];
@@ -181,6 +182,20 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         return $this;
     }
 
+    public function getConsumerError(): string
+    {
+        $system = $this->getDataAttribute('system');
+
+        return $system['consumer_error'] ?? '';
+    }
+
+    public function setConsumerError(string $msg): NanoServiceMessageContract
+    {
+        $this->setDataAttribute('system', 'consumer_error', $msg);
+
+        return $this;
+    }
+
     public function setStatusSuccess(): NanoServiceMessageContract
     {
         $this->setStatusCode(NanoServiceMessageStatuses::SUCCESS());
@@ -265,10 +280,9 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
 
     public function getRetryCount(): int
     {
-        $table = $this->get_properties()['application_headers'] ?? null;
-
-        if ($table && isset($table->getNativeData()['x-death'][0]['count'])) {
-            return (int) $table->getNativeData()['x-death'][0]['count'];
+        if ($this->has('application_headers')) {
+            $headers = $this->get('application_headers')->getNativeData();
+            return isset($headers['x-retry-count']) ? (int) $headers['x-retry-count'] : 0;
         } else {
             return 0;
         }

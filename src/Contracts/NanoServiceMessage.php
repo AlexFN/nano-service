@@ -23,6 +23,10 @@ interface NanoServiceMessage
 
     public function setStatusData(array $data): self;
 
+    public function getConsumerError(): string;
+
+    public function setConsumerError(string $msg): self;
+
     public function getMeta(): array;
 
     /**
