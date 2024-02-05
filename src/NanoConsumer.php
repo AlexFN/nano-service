@@ -115,6 +115,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         $this->callback = $callback;
         $this->debugCallback = $debugCallback;
 
+        $this->getChannel()->basic_qos(0, 1, 0);
         $this->getChannel()->basic_consume($this->queue, $this->getEnv(self::MICROSERVICE_NAME), false, false, false, false, [$this, 'consumeCallback']);
         register_shutdown_function([$this, 'shutdown'], $this->getChannel(), $this->getConnection());
         $this->getChannel()->consume();
