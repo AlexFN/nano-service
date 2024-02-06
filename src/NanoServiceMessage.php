@@ -40,6 +40,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
     {
         return [
             'message_id' => Uuid::uuid4(),
+            'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
         ];
     }
 
@@ -55,7 +56,7 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
             'system' => [
                 'is_debug' => false,
                 'consumer_error' => null,
-                'created_at' => date('Y-m-d H:i:s')
+                'created_at' => $this->getTimestampWithMs(),
             ],
             'encrypted' => [],
         ];
@@ -379,5 +380,13 @@ class NanoServiceMessage extends AMQPMessage implements NanoServiceMessageContra
         }
 
         return  base64_encode($this->private_key->encrypt($value));
+    }
+
+    public function getTimestampWithMs(): string
+    {
+        $mic = microtime(true);
+        $baseFormat = date('Y-m-d H:i:s', $mic);
+        $milliseconds = sprintf("%03d", ($mic - floor($mic)) * 1000);
+        return $baseFormat . '.' . $milliseconds;
     }
 }

@@ -43,11 +43,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
             'namespace' => $this->getEnv('STATSD_NAMESPACE'),
         ]);
 
-        if ($this->tries && $this->backoff) {
-            $this->initialWithFailedQueue();
-        } else {
-            $this->initialQueue();
-        }
+        $this->initialWithFailedQueue();
 
         $exchange = $this->getNamespace($this->exchange);
 
@@ -63,6 +59,7 @@ class NanoConsumer extends NanoServiceClass implements NanoConsumerContract
         return $this;
     }
 
+    /** Deprecated */
     private function initialQueue(): void
     {
         $this->queue($this->getEnv(self::MICROSERVICE_NAME));
