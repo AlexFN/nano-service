@@ -132,4 +132,10 @@ class NanoServiceClass
 
         return $this->connection;
     }
+
+    public function reset(): void
+    {
+        $this->channel = null;
+        $this->connection = null;
+    }
 }

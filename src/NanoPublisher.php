@@ -63,5 +63,7 @@ class NanoPublisher extends NanoServiceClass implements NanoPublisherContract
 
         $this->getChannel()->close();
         $this->getConnection()->close();
+
+        $this->reset();
     }
 }
